@@ -19,17 +19,17 @@ void cvector_set_error_callback(cvector_errorcb cb){
     error_callback = cb;
 }
 
-struct cvector {
+typedef struct cvector {
     unsigned int elem_size;
     unsigned int size;
     unsigned int alloc_size;
     void* memory;
-};
+} cvector;
 
-struct cvector* cvector_create(unsigned int init_size, unsigned int elem_size) {
+cvector* cvector_create(unsigned int init_size, unsigned int elem_size) {
     assert(elem_size);
 
-    struct cvector* newvect = malloc(sizeof(struct cvector));
+    cvector* newvect = malloc(sizeof(cvector));
 
     if ( not newvect ) {
         throw(CVECTOR_ERR_NOT_ENOUGH_MEMORY);
@@ -48,32 +48,32 @@ struct cvector* cvector_create(unsigned int init_size, unsigned int elem_size) {
     return newvect;
 }
 
-void cvector_free(struct cvector* cvect) {
+void cvector_free(cvector* cvect) {
     assert(cvect);
 
     free(cvect->memory);
     free(cvect);
 }
 
-void* cvector_data(struct cvector* cvect) {
+void* cvector_data(cvector* cvect) {
     assert(cvect);
 
     return cvect->memory;
 }
 
-unsigned int cvector_capacity(struct cvector* cvect) {
+unsigned int cvector_capacity(cvector* cvect) {
     assert(cvect);
 
     return cvect->alloc_size / cvect->elem_size;
 }
 
-unsigned int cvector_size(struct cvector* cvect) {
+unsigned int cvector_size(cvector* cvect) {
     assert(cvect);
 
     return cvect->size;
 }
 
-void* cvector_get(struct cvector* cvect, unsigned int index) {
+void* cvector_get(cvector* cvect, unsigned int index) {
     assert(cvect);
 
     if ( index >= cvector_size(cvect) ) {
@@ -84,17 +84,17 @@ void* cvector_get(struct cvector* cvect, unsigned int index) {
     return &cvect->memory[ cvect->elem_size *  index ];
 }
 
-void* cvector_back(struct cvector* cvect) {
+void* cvector_back(cvector* cvect) {
     return cvector_get(cvect, cvect->size - 1);
 }
 
-void* cvector_end(struct cvector* cvect) {
+void* cvector_end(cvector* cvect) {
     assert(cvect);
 
     return &cvect->memory[ cvect->elem_size * cvect->size ];
 }
 
-void cvector_resize(struct cvector* cvect, unsigned int new_size) {
+void cvector_resize(cvector* cvect, unsigned int new_size) {
     assert(cvect);
 
     unsigned int new_alloc_size = new_size * cvect->elem_size;
@@ -112,7 +112,7 @@ void cvector_resize(struct cvector* cvect, unsigned int new_size) {
     assert(cvect->memory);
 }
 
-void cvector_grow(struct cvector* cvect) {
+void cvector_grow(cvector* cvect) {
     if ( cvector_capacity(cvect) <= cvector_size(cvect) + 1 ) {
         if ( cvector_capacity(cvect) == 0 ) {
             cvector_resize(cvect, 1);
@@ -122,7 +122,7 @@ void cvector_grow(struct cvector* cvect) {
     }
 }
 
-void cvector_reserve(struct cvector* cvect, unsigned int target_size) {
+void cvector_reserve(cvector* cvect, unsigned int target_size) {
     if ( cvect->alloc_size >= target_size * cvect->elem_size ) {
         return;
     }
@@ -130,14 +130,14 @@ void cvector_reserve(struct cvector* cvect, unsigned int target_size) {
     cvector_resize(cvect, target_size);
 }
 
-void cvector_shrink(struct cvector* cvect) {
+void cvector_shrink(cvector* cvect) {
     cvector_resize(cvect,cvector_size(cvect));
 }
 
-struct cvector* cvector_copy(struct cvector* cvect) {
+cvector* cvector_copy(cvector* cvect) {
     assert(cvect);
 
-    struct cvector* newvect = cvector_create(cvector_size(cvect), cvect->elem_size);
+    cvector* newvect = cvector_create(cvector_size(cvect), cvect->elem_size);
     if ( cvect->memory ) {
         memcpy(newvect->memory, cvect->memory, newvect->alloc_size);
     }
@@ -145,7 +145,7 @@ struct cvector* cvector_copy(struct cvector* cvect) {
     return newvect;
 }
 
-void* cvector_push_back(struct cvector* cvect, void* elem) {
+void* cvector_push_back(cvector* cvect, void* elem) {
     assert(elem);
 
     cvector_grow(cvect);
@@ -155,7 +155,7 @@ void* cvector_push_back(struct cvector* cvect, void* elem) {
     return elem;
 }
 
-void* cvector_pop(struct cvector* cvect) {
+void* cvector_pop(cvector* cvect) {
     void* result = cvector_back(cvect);
     if ( result ) {
         cvect->size -= 1;
@@ -163,12 +163,12 @@ void* cvector_pop(struct cvector* cvect) {
     return result;
 }
 
-void cvector_clear(struct cvector* cvect) {
+void cvector_clear(cvector* cvect) {
     assert(cvect);
     cvect->size = 0;
 }
 
-void* cvector_insert(struct cvector* cvect, void* elem, unsigned int index) {
+void* cvector_insert(cvector* cvect, void* elem, unsigned int index) {
     cvector_grow(cvect);
 
     memmove(
@@ -182,7 +182,7 @@ void* cvector_insert(struct cvector* cvect, void* elem, unsigned int index) {
     return elem;
 }
 
-void cvector_remove(struct cvector* cvect, unsigned int index) {
+void cvector_remove(cvector* cvect, unsigned int index) {
     assert(cvect);
 
     if ( cvector_size(cvect) == 1 ) {
@@ -197,7 +197,7 @@ void cvector_remove(struct cvector* cvect, unsigned int index) {
     cvect->size -= 1;
 }
 
-void cvector_remove_fast(struct cvector* cvect, unsigned int index) {
+void cvector_remove_fast(cvector* cvect, unsigned int index) {
     assert(cvect);
 
     if ( cvector_size(cvect) == 1 ) {
@@ -208,7 +208,7 @@ void cvector_remove_fast(struct cvector* cvect, unsigned int index) {
     memcpy(cvector_get(cvect, index), cvector_back(cvect), cvect->elem_size);
 }
 
-struct cvector* cvector_extend(struct cvector* dst, struct cvector* src) {
+cvector* cvector_extend(cvector* dst, cvector* src) {
     assert(src);
 
     if ( cvector_size(src) == 0 ) {
@@ -224,7 +224,7 @@ struct cvector* cvector_extend(struct cvector* dst, struct cvector* src) {
     return dst;
 }
 
-void* cvector_find(struct cvector* cvect, void* pvalue) {
+void* cvector_find(cvector* cvect, void* pvalue) {
     assert(cvect);
 
     for(void* it = cvector_data(cvect); it < cvector_end(cvect); it += cvect->elem_size){
