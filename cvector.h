@@ -30,4 +30,9 @@ inline void cvector_remove_fast(struct cvector* cvect, unsigned int index);
 inline struct cvector* cvector_extend(struct cvector* dst, struct cvector* src);
 inline void* cvector_find(struct cvector* cvect, void* pvalue);
 
+#define cvector_iterator(_t) _t*
+
+#define cvector_foreach(it, vec) \
+    for(it = (typeof(it))cvector_data(vec); it < (typeof(it))cvector_end(vec); it++)
+
 #endif

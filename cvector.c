@@ -224,20 +224,10 @@ struct cvector* cvector_extend(struct cvector* dst, struct cvector* src) {
     return dst;
 }
 
-struct mys{
-    int i;
-};
-
-#define cvector_iterator(_t) _t*
-
-#define cvector_foreach(it, vec) \
-    for(it = (typeof(it))cvector_data(vec); it < (typeof(it))cvector_end(vec); it++)
-
 void* cvector_find(struct cvector* cvect, void* pvalue) {
     assert(cvect);
 
-    cvector_iterator(struct mys) it;
-    cvector_foreach(it, cvect){
+    for(void* it = cvector_data(cvect); it < cvector_end(cvect); it += cvect->elem_size){
         if ( memcmp(it, pvalue, cvector_size(cvect)) == 0 ) {
             return it;
         }
