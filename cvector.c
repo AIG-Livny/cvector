@@ -29,6 +29,10 @@ typedef struct cvector {
 cvector* cvector_create(unsigned int init_size, unsigned int elem_size) {
     assert(elem_size);
 
+    if ( init_size == 0 ) {
+        init_size = 1;
+    }
+
     cvector* newvect = malloc(sizeof(cvector));
 
     if ( not newvect ) {
@@ -40,11 +44,8 @@ cvector* cvector_create(unsigned int init_size, unsigned int elem_size) {
     newvect->size = 0;
     newvect->elem_size = elem_size;
 
-    if ( init_size == 0 ){
-        newvect->memory = NULL;
-    } else {
-        cvector_reserve(newvect, init_size);
-    }
+    cvector_reserve(newvect, init_size);
+
     return newvect;
 }
 
