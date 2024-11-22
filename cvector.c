@@ -40,8 +40,7 @@ cvector* cvector_create(unsigned int init_size, unsigned int elem_size) {
         return NULL;
     }
 
-    newvect->alloc_size = init_size * elem_size;
-    newvect->size = 0;
+    memset(newvect,0,sizeof(cvector));
     newvect->elem_size = elem_size;
 
     cvector_reserve(newvect, init_size);

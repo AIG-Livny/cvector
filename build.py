@@ -1,35 +1,38 @@
 #!/usr/bin/python3
 
+import copy
+
 def tool_config() -> "mapyr.ToolConfig":
     tc = mapyr.ToolConfig()
     tc.MINIMUM_REQUIRED_VERSION = '0.5.0'
     return tc
 
 def config() -> dict[str,"mapyr.ProjectConfig"]:
-    default = mapyr.ProjectConfig()
-    default.OUT_FILE  = "libcvector.a"
-    default.CFLAGS = ['-g','-O0']
-    default.SRC_DIRS  = ['.']
+    main = mapyr.ProjectConfig()
+    main.OUT_FILE  = "libcvector.a"
+    main.CFLAGS = ['-Ofast','-flto']
+    main.INCLUDE_DIRS  = ['.']
+    main.SOURCES = ['cvector.c']
+
+    debug = copy.deepcopy(main)
+    debug.CFLAGS = ['-g','-O0']
 
     test = mapyr.ProjectConfig()
     test.OUT_FILE = "test"
     test.SOURCES = ['test.c']
-    test.LIB_DIRS = ['.']
-    test.LIBS = ['cvector']
     test.CFLAGS = ['-g','-O0']
     test.SUBPROJECTS = [
-        default
+        debug
     ]
 
     return {
-        'main':default,
-        'test':test
+        'main':main,
+        'debug':debug,
+        'test':test,
     }
 
 #-----------FOOTER-----------
 # https://github.com/AIG-Livny/mapyr.git
-import mapyr
-'''
 try:
     import mapyr
 except:
@@ -38,7 +41,6 @@ except:
     with open(f'{os.path.dirname(__file__)}/mapyr/__init__.py','+w') as f:
         f.write(requests.get('https://raw.githubusercontent.com/AIG-Livny/mapyr/master/__init__.py').text)
     import mapyr
-'''
 
 if __name__ == "__main__":
     mapyr.process(config, tool_config)
