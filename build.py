@@ -1,35 +1,34 @@
 #!/usr/bin/python3
 
-import copy
-
-def tool_config() -> "mapyr.ToolConfig":
-    tc = mapyr.ToolConfig()
-    tc.MINIMUM_REQUIRED_VERSION = '0.5.0'
+def get_config() -> 'mapyr.Config':
+    tc = mapyr.Config()
+    tc.MINIMUM_REQUIRED_VERSION = '0.6.0'
     return tc
 
-def config() -> dict[str,"mapyr.ProjectConfig"]:
-    main = mapyr.ProjectConfig()
-    main.OUT_FILE  = "libcvector.a"
-    main.CFLAGS = ['-Ofast','-flto']
-    main.INCLUDE_DIRS  = ['.']
-    main.SOURCES = ['cvector.c']
+def get_project(name:str) -> 'mapyr.Project|None':
+    if name not in ['main','debug','test']:
+        return None
 
-    debug = copy.deepcopy(main)
-    debug.CFLAGS = ['-g','-O0']
+    p = mapyr.create_c_project(
+        'libcvector.a',
+        private_config={
+            'SOURCES':['cvector.c'],
+            'CFLAGS':['-Ofast','-flto'] if name == 'main' else ['-g','-O0'],
+        },
+        export_config={'INCLUDE_DIRS':['.']}
+    )
 
-    test = mapyr.ProjectConfig()
-    test.OUT_FILE = "test"
-    test.SOURCES = ['test.c']
-    test.CFLAGS = ['-g','-O0']
-    test.SUBPROJECTS = [
-        debug
-    ]
+    if name == 'test':
+        test = mapyr.create_c_project('test',
+            private_config={
+                'SOURCES':['test.c'],
+                'CFLAGS':['-g','-O0'],
+            },
+            subprojects=[p]
+        )
+        return test
 
-    return {
-        'main':main,
-        'debug':debug,
-        'test':test,
-    }
+    return p
 
 #-----------FOOTER-----------
 # https://github.com/AIG-Livny/mapyr.git
@@ -43,4 +42,4 @@ except:
     import mapyr
 
 if __name__ == "__main__":
-    mapyr.process(config, tool_config)
+        mapyr.process(get_project,get_config)
