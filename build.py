@@ -10,6 +10,7 @@ def get_project(name:str) -> 'mapyr.Project|None':
         return None
 
     p = mapyr.create_c_project(
+        name,
         'libcvector.a',
         private_config={
             'SOURCES':['cvector.c'],
