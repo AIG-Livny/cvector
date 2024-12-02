@@ -15,7 +15,11 @@ def get_project(name:str) -> 'mapyr.Project|None':
             'SOURCES':['cvector.c'],
             'CFLAGS':['-Ofast','-flto'] if name == 'main' else ['-g','-O0'],
         },
-        export_config={'INCLUDE_DIRS':['.']}
+        export_config={
+            'INCLUDE_DIRS':['.'],
+            'LIBS':['cvector'],
+            'LIB_DIRS':['.'],
+        }
     )
 
     if name == 'test':
